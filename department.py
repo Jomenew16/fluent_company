@@ -31,5 +31,12 @@ class Department:
         else:
             print("La posición no existe en el departmento")
 
+
+if __name__ == '__main__':
     
+    #When the app initialites main department instances are created by default
+    departments_name={"Dirección general", "Talento", "Operaciones", "Administración"}
+
+    for department in departments_name:
+        Department(department)    
 

@@ -1,17 +1,19 @@
 
+from department import Department
 from person import Person
 
 class Collaborator(Person):
     
     collaborators = []
 
-    def __init__(self, name, surname, department, status = "en activo", title = "No especificado") -> None:
-        super.__init__(name,surname)
+    def __init__(self, name, surname1,surname2, department: Department = None, status = "en activo", title = "No especificado") -> None:
+        super.__init__(name,surname1,surname2)
         self.department = department #department class
         self.decisions = []
-        self.estatus = status
+        self.status = status
         self.manager: Collaborator #In principle, only one maneger per collaborator. We will later see if that's realistic
         self.collaborators.append(self)
+        self.collab_id = self.collaborators.index(self)
         self.title = title
         self.position_in_department: str #head of department, deputy... The idea is having a general view with simple relative positions
 
