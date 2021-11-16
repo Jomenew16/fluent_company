@@ -1,5 +1,8 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import PhotoImage
+from PIL import Image, ImageTk
+
 from structure import Collaborator, Department
 
 
@@ -76,31 +79,47 @@ class Menu(Frame):
         surname1 = StringVar()
         surname2 = StringVar()
 
-        def create_collab_instance():
-            collaborator = Collaborator(name.get(),surname1.get(),surname2.get())
+        def create_collab_instance(depart_index):
+            collaborator = Collaborator(name.get(),surname1.get(),surname2.get(), Department.departments[depart_index])
             self.clean_frame_space(frame)
             self.fill_collaborator_form(frame, collaborator)
     
-        nameLabel = Label(frame, text= "Nombre")
+        nameLabel = Label(frame, text= "Nombre*")
         nameLabel.grid(row=0, column=0, sticky='W')
 
         nameEntry = Entry(frame, textvariable= name)
         nameEntry.grid(row=0, column=1, sticky='W')
 
-        surname1Label = Label(frame, text= "Primer apellido")
-        surname1Label.grid(row=0, column=3, sticky='W')
+        surname1Label = Label(frame, text= "Primer apellido*")
+        surname1Label.grid(row=0, column=2, sticky='W')
 
         surname1Entry = Entry(frame, textvariable= surname1)
-        surname1Entry.grid(row=0, column=4, sticky='W')
+        surname1Entry.grid(row=0, column=3, sticky='W')
 
         surname2Label = Label(frame, text= "Segundo apellido")
-        surname2Label.grid(row=1, column=3, sticky='W')
+        surname2Label.grid(row=1, column=2, sticky='W')
 
         surname2Entry = Entry(frame, textvariable= surname2)
-        surname2Entry.grid(row=1, column=4, sticky='W')
+        surname2Entry.grid(row=1, column=3, sticky='W')
 
-        addButton = Button(frame, text="Añadir", command = create_collab_instance)
-        addButton.grid(row=2, columnspan=4, sticky='S')
+        #combox of the departments
+         
+        departs = [d.name for d in Department.departments]
+        depart = StringVar() 
+
+        def depart_index():
+            return departs.index(depart.get())
+             
+        departsLabel = Label(frame, text="Departamento*")
+        departsLabel.grid(row=1, column=0)
+        
+        comboDeparts = ttk.Combobox(frame, state='readonly', textvariable=depart)
+        comboDeparts['values'] = departs
+        comboDeparts.grid(sticky='W', row=1, column=1)
+
+
+        addButton = Button(frame, text="Añadir", command = lambda: create_collab_instance(depart_index()))
+        addButton.grid(row=2, columnspan=5, sticky='S')
         addButton.config(pady=5)
 
 
@@ -111,23 +130,38 @@ class Menu(Frame):
 
     def fill_collaborator_form(self, frame, collab):
         
+        #First navigation functionalities
+        def previous_collaborator(frame, collab):
+            try:
+                id = collab.collab_id - 1
+                self.fill_collaborator_form(frame, Collaborator.collaborators[id])
+            except IndexError:
+                self.fill_collaborator_form(frame, Collaborator.collaborators[0])
+        
+        def next_collaborator(frame, collab):
+            try:
+                id = collab.collab_id + 1
+                self.fill_collaborator_form(frame, Collaborator.collaborators[id])
+            except IndexError:
+                self.fill_collaborator_form(frame, Collaborator.collaborators[0])
+
+
         nameLabel = Label(frame, text=f'{collab.name} {collab.surname1}')
-        nameLabel.grid(row=0, columnspan= 6)
-        nameLabel.config(bg='white')
+        nameLabel.grid(row=0, column= 0)
+        nameLabel.config(bg='white', padx= 10, font=('Open Sans', 9, 'bold'))
 
         codeLabel = Label(frame, text="Código empleado: ")
-        codeLabel.grid(row=1, column=0)
-        nameLabel.config(pady=5)
-
+        codeLabel.grid(row=0, column=1)
+        
         codenumberLabel = Label(frame, text=f'{collab.collab_id}')
-        codenumberLabel.grid(row=1, column=1)
-        nameLabel.config(pady=5)
+        codenumberLabel.grid(row=0, column=2)
+                
+        leftnavigationButton = Button(frame, text="<", font=('Arial Black', 10, 'bold'), command=lambda: previous_collaborator(frame, collab))
+        leftnavigationButton.grid(row=0, column=3)
 
-        leftnavigationButton = Button(frame, justify=LEFT)
-        leftphoto = PhotoImage(file='./images/left_arrow_25.png')
-        #rphoto = leftphoto.subsample(3,3)
-        leftnavigationButton.config(image=leftphoto, padx=5)
-        leftnavigationButton.grid(row=1, column=2)
+        rightnavigationButton = Button(frame, text=">", font=('Arial Black', 10, 'bold'), command=lambda: next_collaborator(frame, collab))
+        rightnavigationButton.grid(row=0, column=4)
+
 #------------------------------- form to add a department s in a given frame----------------------------   
     def add_department_form(self, frame):
         self.clean_frame_space(frame)

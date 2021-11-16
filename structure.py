@@ -39,7 +39,7 @@ class Collaborator(Person):
         self.collaborators.append(self)
         self.collab_id = self.collaborators.index(self)
         self.title = title
-        print(f'{self.name} {self.surname1} se ha incorporado a la organización')
+        print(f'{self.name} {self.surname1} se ha incorporado al departamento {self.department.name}')
         print(f'Ahora el equipo lo forman {[collaborator.name for collaborator in self.collaborators]}')
         self.position_in_department: str #head of department, deputy... The idea is having a general view with simple relative positions
 
