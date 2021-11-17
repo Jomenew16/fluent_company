@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox
 from tkinter import PhotoImage
+from typing import Annotated
 from PIL import Image, ImageTk
 
 from structure import Collaborator, Department
@@ -80,9 +82,15 @@ class Menu(Frame):
         surname2 = StringVar()
 
         def create_collab_instance(depart_index):
-            collaborator = Collaborator(name.get(),surname1.get(),surname2.get(), Department.departments[depart_index])
-            self.clean_frame_space(frame)
-            self.fill_collaborator_form(frame, collaborator)
+            if name.get() and surname1.get():
+                try:
+                    collaborator = Collaborator(name.get(),surname1.get(),surname2.get(), Department.departments[depart_index])
+                    self.fill_collaborator_form(frame, collaborator)
+                except TypeError:
+                    pass
+            else:
+                messagebox.showwarning('Aviso', 'Nombre y apellido son obligatorios')
+            
     
         nameLabel = Label(frame, text= "Nombre*")
         nameLabel.grid(row=0, column=0, sticky='W')
@@ -108,7 +116,10 @@ class Menu(Frame):
         depart = StringVar() 
 
         def depart_index():
-            return departs.index(depart.get())
+            try:
+                return departs.index(depart.get())
+            except ValueError:
+                messagebox.showwarning('Aviso', 'Escoge un departamento, o créalo si no está en la lista')
              
         departsLabel = Label(frame, text="Departamento*")
         departsLabel.grid(row=1, column=0)
@@ -130,37 +141,86 @@ class Menu(Frame):
 
     def fill_collaborator_form(self, frame, collab):
         
-        #First navigation functionalities
-        def previous_collaborator(frame, collab):
-            try:
-                id = collab.collab_id - 1
-                self.fill_collaborator_form(frame, Collaborator.collaborators[id])
-            except IndexError:
-                self.fill_collaborator_form(frame, Collaborator.collaborators[0])
+        self.clean_frame_space(frame)
         
-        def next_collaborator(frame, collab):
+        def next_collaborator(frame, collab, direction):
             try:
-                id = collab.collab_id + 1
+                id = collab.collab_id +1 if direction == "ahead" else collab.collab_id - 1
                 self.fill_collaborator_form(frame, Collaborator.collaborators[id])
             except IndexError:
                 self.fill_collaborator_form(frame, Collaborator.collaborators[0])
 
 
         nameLabel = Label(frame, text=f'{collab.name} {collab.surname1}')
-        nameLabel.grid(row=0, column= 0)
+        nameLabel.grid(row=0, columnspan= 2)
         nameLabel.config(bg='white', padx= 10, font=('Open Sans', 9, 'bold'))
 
         codeLabel = Label(frame, text="Código empleado: ")
-        codeLabel.grid(row=0, column=1)
+        codeLabel.grid(row=0, column=2)
         
         codenumberLabel = Label(frame, text=f'{collab.collab_id}')
-        codenumberLabel.grid(row=0, column=2)
+        codenumberLabel.grid(row=0, column=3)
                 
-        leftnavigationButton = Button(frame, text="<", font=('Arial Black', 10, 'bold'), command=lambda: previous_collaborator(frame, collab))
-        leftnavigationButton.grid(row=0, column=3)
+        leftnavigationButton = Button(frame, text="<", font=('Arial Black', 10, 'bold'), command=lambda: next_collaborator(frame, collab, direction="backwards"))
+        leftnavigationButton.grid(row=0, column=4)
 
-        rightnavigationButton = Button(frame, text=">", font=('Arial Black', 10, 'bold'), command=lambda: next_collaborator(frame, collab))
-        rightnavigationButton.grid(row=0, column=4)
+        rightnavigationButton = Button(frame, text=">", font=('Arial Black', 10, 'bold'), command=lambda: next_collaborator(frame, collab, direction="ahead"))
+        rightnavigationButton.grid(row=0, column=5)
+
+        searchnameLabel = Label(frame, text= "Buscar por nombre")
+        searchnameLabel.grid(row=1, column=0)
+
+        #combo of search by person
+        people = [f'{person.collab_id}- {person.name} {person.surname1} {person.surname2}' for person in Collaborator.collaborators]
+        full_name = StringVar()
+        
+        def go_to_person(*args):
+            try:
+                f_name = full_name.get().split("-") #first item of f_name should be the collaborators code
+                self.fill_collaborator_form(frame, Collaborator.collaborators[int(f_name[0])])
+            except Exception:
+                messagebox.showwarning('Aviso', "Selecciona un valor de la lista")
+
+        #full_name.trace_add('write', callback=go_to_person) 
+
+        searchnameCombo = ttk.Combobox(frame, textvariable= full_name)
+        searchnameCombo['values'] = people
+        searchnameCombo.bind("<<ComboboxSelected>>", go_to_person)
+        searchnameCombo.grid(row=1, column=1)
+
+        #searchnameButton = Button(frame, text="Ir", command= lambda: go_to_person(frame))
+        #searchnameButton.grid(row=1, column=2)
+        #searchnameButton.config(padx=5)
+
+        #search by code input
+
+        searchidLabel = Label(frame, text="Buscar por código")
+        searchidLabel.grid(row=1, column=2)
+        searchidLabel.config(padx=10)
+
+        
+        collab_code= IntVar()
+        collab_code.set(collab.collab_id)
+
+        def go_to_person_by_id(frame):
+            try:
+                self.fill_collaborator_form(frame, Collaborator.collaborators[collab_code.get()])
+            except IndexError:
+                messagebox.showwarning('Aviso', f'No existe ningún colaborador con código {collab_code.get()}')
+            except ValueError:
+                messagebox.showwarning('Aviso', 'Introduce un código válido de empleado')
+            except Exception:
+                messagebox.showwarning('Aviso', 'Introduce un código válido de empleado')
+            
+
+        searchidEntry = Entry(frame, textvariable=collab_code)
+        searchidEntry.grid(row=1, column=3)
+        searchidEntry.config(width=10)
+
+        searchidButton = Button(frame, text="Ir", command=lambda: go_to_person_by_id(frame))
+        searchidButton.grid(row=1, column=4, columnspan=2)
+        
+
 
 #------------------------------- form to add a department s in a given frame----------------------------   
     def add_department_form(self, frame):
@@ -169,8 +229,6 @@ class Menu(Frame):
 
         #frame.destroy()
         
-
-
 
 
 if __name__ == '__main__':
