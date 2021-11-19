@@ -7,20 +7,33 @@ class Person:
         self.surname1 = surname1
         self.surname2 = surname2
         self.adress: str
-        self.emails = {
+        self._emails = {
             "trabajo": "",
             "personal": "" 
         }
-        self.telephone = {
+        self._telephones = {
             "trabajo": "",
             "personal": ""
         }
         self.users = []
 
-    def update_email(self, key, value):
-        #verficar máscara - ANALIZAR REGULAR EXPRESIONS Y VERIFICAR QUE INCLUYE @ Y .
-        self.emails[key] = value
-        print(f'Se ha añadido el email {value} del tipo {key}')
+    def update_email(self, key, value) -> bool:
+        #Verify if the provided email matches with a usual patron, else, return false
+        email_pattern = "^[A-Za-z.]+@[a-z.]+\.[a-z]+$"
+        match = re.match(email_pattern, value)
+        if match:
+            self._emails[key] = value
+            print(f'Se ha añadido el email {value} del tipo {key}')
+        return match
+
+    def update_telephone(self, key, value) -> bool:
+        #Verify if the provided email matches with a usual patron, else, return false
+        telephone_pattern = "^\+?[0-9]+$" #+ is allowed for international code
+        match = re.match(telephone_pattern, value)
+        if match:
+            self._telephones[key] = value
+            print(f'Se ha añadido el teléfono {value} del tipo {key}')
+        return match
 
     def create_user(self):
         "Make the person a user of the system"

@@ -253,8 +253,8 @@ class Menu(Frame):
             title_var.set(collab.title)
 
         titleEntry = Entry(frame, textvariable=title_var)
-        titleEntry.grid(row=4, column=1, columnspan=3)
-        titleEntry.config(width=50)
+        titleEntry.grid(row=4, column=1, columnspan=3, padx=15, sticky='W')
+        titleEntry.config(width=70)
 
         
         coordLabel = Label(frame, text = "Coordinador")
@@ -295,15 +295,15 @@ class Menu(Frame):
         emailLabel.grid(row=6, column=0)
 
         type_of_email_var = StringVar()
-        all_types = list(collab.emails)
+        all_types = list(collab._emails)
         type_of_email_var.set(all_types[0])
         
         email_var = StringVar()
         if type_of_email_var.get():
-            email_var.set(collab.emails[type_of_email_var.get()])
+            email_var.set(collab._emails[type_of_email_var.get()])
 
         def update_email_value(*args):
-            email_var.set(collab.emails[type_of_email_var.get()])
+            email_var.set(collab._emails[type_of_email_var.get()])
 
         emailtypeCombo = ttk.Combobox(frame, textvariable=type_of_email_var)
         emailtypeCombo['values'] = all_types
@@ -311,16 +311,52 @@ class Menu(Frame):
         emailtypeCombo.grid(row=6, column=1)
 
         emailEntry = Entry(frame, textvariable=email_var)
-        emailEntry.grid(row=6, column=2, columnspan=3)
+        emailEntry.grid(row=6, column=2, columnspan=3, padx=15 ,sticky='W')
+        emailEntry.config(width=40)
 
         def save_email():
-            collab.update_email(type_of_email_var.get(), email_var.get())
-            all_types = list(collab.emails)
+            email_check = collab.update_email(type_of_email_var.get(), email_var.get())
+            if not email_check:
+                messagebox.showwarning('Aviso', 'El email no se ha guardado. Verifica el formato')
+            all_types = list(collab._emails)
             emailtypeCombo['values'] = all_types
 
         saveemailButton = Button(frame, text="Guardar", command=save_email)
         saveemailButton.grid(row=6,column=5)
 
+        #Telephone updates
+
+        telephoneLabel = Label(frame, text="Teléfono")
+        telephoneLabel.grid(row=7, column=0)
+
+        type_of_telephone_var = StringVar()
+        all_types_tel = list(collab._telephones)
+        type_of_telephone_var.set(all_types_tel[0])
+        
+        telephone_var = StringVar()
+        if type_of_telephone_var.get():
+            telephone_var.set(collab._telephones[type_of_telephone_var.get()])
+
+        def update_telephone_value(*args):
+            telephone_var.set(collab._telephones[type_of_telephone_var.get()])
+
+        telephonetypeCombo = ttk.Combobox(frame, textvariable=type_of_telephone_var)
+        telephonetypeCombo['values'] = all_types_tel
+        telephonetypeCombo.bind("<<ComboboxSelected>>", update_telephone_value)
+        telephonetypeCombo.grid(row=7, column=1)
+
+        telephoneEntry = Entry(frame, textvariable=telephone_var)
+        telephoneEntry.grid(row=7, column=2, columnspan=3, padx=15, sticky='W')
+
+        def save_telephone():
+            telephone_check = collab.update_telephone(type_of_telephone_var.get(), telephone_var.get())
+            if not telephone_check:
+                messagebox.showwarning('Aviso', 'El teléfono no se ha guardado. Verifica el formato')
+            all_types_tel = list(collab._telephones)
+            telephonetypeCombo['values'] = all_types_tel
+
+        savetelephoneButton = Button(frame, text="Guardar", command=save_telephone)
+        savetelephoneButton.grid(row=7,column=5)
 
         #--------------------------- final form buttons------------------------------------------------
 
@@ -338,16 +374,17 @@ class Menu(Frame):
 
             #collab.set_manager(Collaborator._collaborators[index_manager.get()])      
         
-        updateButton = Button(frame, text="Guardar datos", command=update_collab_attributes)
-        updateButton.grid(row=9, column=0, columnspan=2)
+        updateButton = Button(frame, text="Guardar datos", command=update_collab_attributes, font=('Open Sans', 9, 'bold'))
+        updateButton.grid(row=9, column=1, columnspan=2, pady=10)
+        updateButton.config(bg='#696969', fg='white', relief='raised', border=3)
 
         def start_new_collaborator():
             value = messagebox.askokcancel("Nuevo colaborador", "Si no los has guardado, se perderán los cambios.\n¿Deseas continuar?")
             if value:
                 self.add_collaborator_form(frame)
 
-        newcollabButton = Button(frame, text="Nuevo colaborador", command=start_new_collaborator)
-        newcollabButton.grid(row=9, column=3, columnspan=2)
+        newcollabButton = Button(frame, text="Nuevo colaborador", command=start_new_collaborator, font=('Open Sans', 9, 'bold'))
+        newcollabButton.grid(row=9, column=3, columnspan=2, pady=10)
 
 
 
