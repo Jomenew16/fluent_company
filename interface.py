@@ -73,7 +73,7 @@ class Menu(Frame):
     
  #------------------------------- form to add collaborators in a given frame - Frame 3)----------------------------   
     def add_collaborator_form(self, frame):
-    #First we add the collaborator with only name and surname, the we access de edit collaborator
+    #First we add the collaborator with only name, surname and department, then we access de edit collaborator
     #once the instance is already created and we have a id number
         self.clean_frame_space(frame)
 
@@ -84,7 +84,7 @@ class Menu(Frame):
         def create_collab_instance(depart_index):
             if name.get() and surname1.get():
                 try:
-                    collaborator = Collaborator(name.get(),surname1.get(),surname2.get(), Department.departments[depart_index])
+                    collaborator = Department._departments[depart_index].add_collaborator(name.get(),surname1.get(),surname2.get())
                     self.fill_collaborator_form(frame, collaborator)
                 except TypeError:
                     pass
@@ -112,7 +112,7 @@ class Menu(Frame):
 
         #combox of the departments
          
-        departs = [d.name for d in Department.departments]
+        departs = [d.name for d in Department._departments]
         depart = StringVar() 
 
         def depart_index():
@@ -143,12 +143,13 @@ class Menu(Frame):
         
         self.clean_frame_space(frame)
         
+        #First, there is a navigations menu, so that we can select the right collaborator
         def next_collaborator(frame, collab, direction):
             try:
                 id = collab.collab_id +1 if direction == "ahead" else collab.collab_id - 1
-                self.fill_collaborator_form(frame, Collaborator.collaborators[id])
+                self.fill_collaborator_form(frame, Collaborator._collaborators[id])
             except IndexError:
-                self.fill_collaborator_form(frame, Collaborator.collaborators[0])
+                self.fill_collaborator_form(frame, Collaborator._collaborators[0])
 
 
         nameLabel = Label(frame, text=f'{collab.name} {collab.surname1}')
@@ -171,13 +172,13 @@ class Menu(Frame):
         searchnameLabel.grid(row=1, column=0)
 
         #combo of search by person
-        people = [f'{person.collab_id}- {person.name} {person.surname1} {person.surname2}' for person in Collaborator.collaborators]
+        people = [f'{person.collab_id}- {person.name} {person.surname1} {person.surname2}' for person in Collaborator._collaborators]
         full_name = StringVar()
         
         def go_to_person(*args):
             try:
                 f_name = full_name.get().split("-") #first item of f_name should be the collaborators code
-                self.fill_collaborator_form(frame, Collaborator.collaborators[int(f_name[0])])
+                self.fill_collaborator_form(frame, Collaborator._collaborators[int(f_name[0])])
             except Exception:
                 messagebox.showwarning('Aviso', "Selecciona un valor de la lista")
 
@@ -187,10 +188,6 @@ class Menu(Frame):
         searchnameCombo['values'] = people
         searchnameCombo.bind("<<ComboboxSelected>>", go_to_person)
         searchnameCombo.grid(row=1, column=1)
-
-        #searchnameButton = Button(frame, text="Ir", command= lambda: go_to_person(frame))
-        #searchnameButton.grid(row=1, column=2)
-        #searchnameButton.config(padx=5)
 
         #search by code input
 
@@ -204,7 +201,7 @@ class Menu(Frame):
 
         def go_to_person_by_id(frame):
             try:
-                self.fill_collaborator_form(frame, Collaborator.collaborators[collab_code.get()])
+                self.fill_collaborator_form(frame, Collaborator._collaborators[collab_code.get()])
             except IndexError:
                 messagebox.showwarning('Aviso', f'No existe ningún colaborador con código {collab_code.get()}')
             except ValueError:
@@ -218,8 +215,145 @@ class Menu(Frame):
         searchidEntry.config(width=10)
 
         searchidButton = Button(frame, text="Ir", command=lambda: go_to_person_by_id(frame))
-        searchidButton.grid(row=1, column=4, columnspan=2)
+        searchidButton.grid(row=1, column=4, columnspan=3)
         
+        #Here are the fields to add/edit the collaborator info
+        Label(frame, text="______________________________________________________________________________").grid(row=2,columnspan=5, sticky='N')
+
+        Label(frame, text= "Departamento: ").grid(row=3, column=0)
+
+        departLabel= Label(frame, text=f'{collab._department.name}', font=('Open Sans', 9, 'bold'))
+        departLabel.grid(row=3, column=1)
+        departLabel.config(bg='white')
+
+        Label(frame, text= "Posición").grid(row=3, column=2)
+
+        pos_in_department = StringVar()
+        if collab.position_in_department:
+            pos_in_department.set(collab.position_in_department)
+
+        posCombo = ttk.Combobox(frame, textvariable=pos_in_department)
+        posCombo['values'] = list(collab._department._positions)
+        posCombo.grid(row=3, column=3, columnspan=2)
+
+        def add_position():
+            collab.position_in_department = collab._department.create_new_position(pos_in_department.get())
+            posCombo['values'] = list(collab._department._positions)
+            print(f'{collab.name} es ahora {collab.position_in_department}')
+
+        posButton = Button(frame, text="Confirmar\nnueva", command=add_position)
+        posButton.grid(row=3, column=5, columnspan=2)
+        posButton.config(height=2, width=10, padx=10)
+
+        titleLabel = Label(frame, text="Título")
+        titleLabel.grid(row=4, column=0)
+
+        title_var = StringVar()
+        if collab.title:
+            title_var.set(collab.title)
+
+        titleEntry = Entry(frame, textvariable=title_var)
+        titleEntry.grid(row=4, column=1, columnspan=3)
+        titleEntry.config(width=50)
+
+        
+        coordLabel = Label(frame, text = "Coordinador")
+        coordLabel.grid(row=5, column=0)
+
+        manager_var = StringVar()
+        if collab._manager:
+            manager_var.set(people[collab._manager.collab_id])
+
+        coordCombo = ttk.Combobox(frame, textvariable= manager_var)
+        coordCombo['values'] = people
+        coordCombo.grid(row=5, column=1)
+
+        statusLabel=Label(frame, text= "Estado")
+        statusLabel.grid(row=5, column=2)
+
+        status_var = StringVar()
+        if collab.status:
+            status_var.set(collab.status)
+
+        statusCombo = ttk.Combobox(frame, textvariable= status_var)
+        statusCombo['values'] = list(Collaborator._set_of_status)
+        statusCombo.grid(row=5, column=3)
+
+
+        def add_status():
+            collab.update_status(status_var.get())
+            statusCombo['values'] = list(Collaborator._set_of_status)
+            print(f'{collab.name} tiene ahora el siguiente estado: {collab.status}')
+
+        statButton = Button(frame, text="Confirmar\nnuevo estado", command=add_status)
+        statButton.grid(row=5, column=5, columnspan=2)
+        statButton.config(height=2, width=10, padx=10)
+
+        #Email updates
+        
+        emailLabel = Label(frame, text="Email")
+        emailLabel.grid(row=6, column=0)
+
+        type_of_email_var = StringVar()
+        all_types = list(collab.emails)
+        type_of_email_var.set(all_types[0])
+        
+        email_var = StringVar()
+        if type_of_email_var.get():
+            email_var.set(collab.emails[type_of_email_var.get()])
+
+        def update_email_value(*args):
+            email_var.set(collab.emails[type_of_email_var.get()])
+
+        emailtypeCombo = ttk.Combobox(frame, textvariable=type_of_email_var)
+        emailtypeCombo['values'] = all_types
+        emailtypeCombo.bind("<<ComboboxSelected>>", update_email_value)
+        emailtypeCombo.grid(row=6, column=1)
+
+        emailEntry = Entry(frame, textvariable=email_var)
+        emailEntry.grid(row=6, column=2, columnspan=3)
+
+        def save_email():
+            collab.update_email(type_of_email_var.get(), email_var.get())
+            all_types = list(collab.emails)
+            emailtypeCombo['values'] = all_types
+
+        saveemailButton = Button(frame, text="Guardar", command=save_email)
+        saveemailButton.grid(row=6,column=5)
+
+
+        #--------------------------- final form buttons------------------------------------------------
+
+        #botones de actualización
+        def update_collab_attributes():
+            collab.update_information(relative_position=pos_in_department.get(), title = title_var.get())
+            if status_var.get():
+                add_status()
+            if manager_var.get():
+                m_name = manager_var.get().split("-") #first item of f_name should be the collaborators code
+                collab.set_manager(Collaborator._collaborators[int(m_name[0])])
+                statusCombo['values'] = list(Collaborator._set_of_status)
+            if type_of_email_var and email_var:
+                save_email()
+
+            #collab.set_manager(Collaborator._collaborators[index_manager.get()])      
+        
+        updateButton = Button(frame, text="Guardar datos", command=update_collab_attributes)
+        updateButton.grid(row=9, column=0, columnspan=2)
+
+        def start_new_collaborator():
+            value = messagebox.askokcancel("Nuevo colaborador", "Si no los has guardado, se perderán los cambios.\n¿Deseas continuar?")
+            if value:
+                self.add_collaborator_form(frame)
+
+        newcollabButton = Button(frame, text="Nuevo colaborador", command=start_new_collaborator)
+        newcollabButton.grid(row=9, column=3, columnspan=2)
+
+
+
+
+
+
 
 
 #------------------------------- form to add a department s in a given frame----------------------------   
