@@ -4,6 +4,8 @@ from tkinter import messagebox
 from tkinter import PhotoImage
 from typing import Annotated
 from PIL import Image, ImageTk
+from country_list import countries_for_language
+import re
 
 from structure import Collaborator, Department
 
@@ -358,11 +360,41 @@ class Menu(Frame):
         savetelephoneButton = Button(frame, text="Guardar", command=save_telephone)
         savetelephoneButton.grid(row=7,column=5)
 
+        addresLabel = Label(frame, text="Dirección")
+        addresLabel.grid(row=8,column=0)
+
+        adress_var = StringVar()
+
+        adressEntry = Entry(frame, textvariable=adress_var)
+        adressEntry.grid(row=8, column=1, columnspan=2, sticky='W')
+        adressEntry.config(width=50)
+
+        countryLabel = Label(frame, text="País")
+        countryLabel.grid(row=8, column=3)
+
+        country_var = StringVar()
+        countries = list(map(lambda country: country[1], countries_for_language('es')))
+        
+        def dynamic_search(event):
+            #global countries
+            texting_country = "^" + country_var.get().capitalize() + "[A-Za-z.]*"
+            print(texting_country)
+            countries2 = list(filter(lambda country: re.match(texting_country,country), countries))
+            countryCombo['values'] = countries2
+            #if len(countries2) == 1:
+            #    country_var.set(countries2[0])
+            #print(countries2)
+            
+        countryCombo = ttk.Combobox(frame, textvariable=country_var, state="readonly")
+        countryCombo['values'] = countries
+        countryCombo.bind("<Any-KeyPress>", lambda event: dynamic_search(event))
+        countryCombo.grid(row=8, column=4, columnspan=3)
+
         #--------------------------- final form buttons------------------------------------------------
 
         #botones de actualización
         def update_collab_attributes():
-            collab.update_information(relative_position=pos_in_department.get(), title = title_var.get())
+            collab.update_information(relative_position=pos_in_department.get(), title = title_var.get(), adress=adress_var)
             if status_var.get():
                 add_status()
             if manager_var.get():
