@@ -1,12 +1,17 @@
-
 import re
+from tkinter import messagebox
+
 
 class Person:
     def __init__(self, name, surname1, surname2) -> None:
         self.name = name
         self.surname1 = surname1
         self.surname2 = surname2
-        self.adress: str
+        self.adress: str = None
+        self.postal_code: str = None
+        self.city: str= None
+        self.state: str= None
+        self.country: str = None
         self._emails = {
             "trabajo": "",
             "personal": "" 
@@ -59,7 +64,7 @@ class Collaborator(Person):
         self._manager: Collaborator = None #In principle, only one maneger per collaborator. We will later see if that's realistic
         self._reports = [] #the reports of each manager
         self._collaborators.append(self)
-        self.collab_id = self._collaborators.index(self)
+        self._collab_id = self._collaborators.index(self) + 1
         self.title = title
         print(f'{self.name} {self.surname1} se ha incorporado al departamento {self._department.name}')
         print(f'Ahora el equipo lo forman {[collaborator.name for collaborator in self._collaborators]}')
@@ -71,9 +76,24 @@ class Collaborator(Person):
         print(f'El manager de {self.name} es ahora {self._manager.name}')
         print(f'{manager.name} tiene ahora estas personas a su cargo {[mnger.name for mnger in manager._reports]}')
     
-    def update_information(self, relative_position, title):
+    def update_information(self, relative_position, title, adress, country, city, state, postal_code):
+        #validate some info
+
+        #postal_code is a 5 digits code
+        pc_pattern = "\d{5}"
+        if re.match(pc_pattern, postal_code) or postal_code==None:
+            self.postal_code = postal_code
+        else:
+            messagebox.showwarning('Aviso', 'El código postal no tiene un formato válido')
+
+        #Validations to be added    
         self.position_in_department = relative_position
         self.title = title
+        self.adress = adress
+        self.country = country
+        self.city = city
+        self.state = state 
+        
         print(f'''Se han actualizado los siguientes datos\nPosición interna: {self.position_in_department}
         \nTítulo: {self.title}
         \nEstado: {self.status}''')
@@ -105,16 +125,20 @@ class Department:
 
     _departments = []
 
-    def __init__(self, name) -> None:
+    def __init__(self, name, upper_department = None) -> None:
         self.name = name
+        self.upper_department: Department = upper_department
         self._departments.append(self)
+        self._department_id = self._departments.index(self) + 1
         self.department_collaborators = set()
         self._positions = {"head of department", "deputy of department", "team manager"}
         print(f"Se ha creado el nuevo departmento {name}")
+        if upper_department:
+            print(f'{name} depende de {self.upper_department.name}')
         print(f'Ahora existen los siguientes departamentos: {[i.name for i in self._departments]}')
 
-
-    def add_collaborator(self, name, surname1, surname2, *args):
+   
+    def add_collaborator(self, name, surname1, surname2):
         new_collaborator = Collaborator(name, surname1, surname2, self)
         self.department_collaborators.add(new_collaborator)
         print(f"se ha añadido a {name} en el departamento {self.name}")

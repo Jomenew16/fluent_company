@@ -148,8 +148,8 @@ class Menu(Frame):
         #First, there is a navigations menu, so that we can select the right collaborator
         def next_collaborator(frame, collab, direction):
             try:
-                id = collab.collab_id +1 if direction == "ahead" else collab.collab_id - 1
-                self.fill_collaborator_form(frame, Collaborator._collaborators[id])
+                id = collab._collab_id +1 if direction == "ahead" else collab._collab_id - 1
+                self.fill_collaborator_form(frame, Collaborator._collaborators[id - 1])
             except IndexError:
                 self.fill_collaborator_form(frame, Collaborator._collaborators[0])
 
@@ -161,7 +161,7 @@ class Menu(Frame):
         codeLabel = Label(frame, text="Código empleado: ")
         codeLabel.grid(row=0, column=2)
         
-        codenumberLabel = Label(frame, text=f'{collab.collab_id}')
+        codenumberLabel = Label(frame, text=f'{collab._collab_id}')
         codenumberLabel.grid(row=0, column=3)
                 
         leftnavigationButton = Button(frame, text="<", font=('Arial Black', 10, 'bold'), command=lambda: next_collaborator(frame, collab, direction="backwards"))
@@ -174,13 +174,13 @@ class Menu(Frame):
         searchnameLabel.grid(row=1, column=0)
 
         #combo of search by person
-        people = [f'{person.collab_id}- {person.name} {person.surname1} {person.surname2}' for person in Collaborator._collaborators]
+        people = [f'{person._collab_id}- {person.name} {person.surname1} {person.surname2}' for person in Collaborator._collaborators]
         full_name = StringVar()
         
         def go_to_person(*args):
             try:
                 f_name = full_name.get().split("-") #first item of f_name should be the collaborators code
-                self.fill_collaborator_form(frame, Collaborator._collaborators[int(f_name[0])])
+                self.fill_collaborator_form(frame, Collaborator._collaborators[int(f_name[0]) - 1])
             except Exception:
                 messagebox.showwarning('Aviso', "Selecciona un valor de la lista")
 
@@ -199,11 +199,11 @@ class Menu(Frame):
 
         
         collab_code= IntVar()
-        collab_code.set(collab.collab_id)
+        collab_code.set(collab._collab_id)
 
         def go_to_person_by_id(frame):
             try:
-                self.fill_collaborator_form(frame, Collaborator._collaborators[collab_code.get()])
+                self.fill_collaborator_form(frame, Collaborator._collaborators[collab_code.get()-1])
             except IndexError:
                 messagebox.showwarning('Aviso', f'No existe ningún colaborador con código {collab_code.get()}')
             except ValueError:
@@ -264,7 +264,7 @@ class Menu(Frame):
 
         manager_var = StringVar()
         if collab._manager:
-            manager_var.set(people[collab._manager.collab_id])
+            manager_var.set(people[collab._manager._collab_id - 1])
 
         coordCombo = ttk.Combobox(frame, textvariable= manager_var)
         coordCombo['values'] = people
@@ -376,7 +376,7 @@ class Menu(Frame):
         countries = list(map(lambda country: country[1], countries_for_language('es')))
         
         def dynamic_search(event):
-            #global countries
+            #pendiente de mejorar la dinámica de autocompletado
             texting_country = "^" + country_var.get().capitalize() + "[A-Za-z.]*"
             print(texting_country)
             countries2 = list(filter(lambda country: re.match(texting_country,country), countries))
@@ -390,11 +390,43 @@ class Menu(Frame):
         countryCombo.bind("<Any-KeyPress>", lambda event: dynamic_search(event))
         countryCombo.grid(row=8, column=4, columnspan=3)
 
+        stateLabel = Label(frame, text="Estado")
+        stateLabel.grid(row=9, column=0)
+
+        state_var = StringVar()
+
+        stateEntry = Entry(frame, textvariable=state_var)
+        stateEntry.grid(row=9, column=1)
+
+        cityLabel = Label(frame, text="Ciudad")
+        cityLabel.grid(row=9, column=2)
+
+        city_var = StringVar()
+
+        cityEntry = Entry(frame, textvariable=city_var)
+        cityEntry.grid(row=9, column=3)
+
+        pcLabel = Label(frame, text="C.P.")
+        pcLabel.grid(row=9, column=4)
+
+        pc_var = StringVar()
+
+        pcEntry = Entry(frame, textvariable=pc_var)
+        pcEntry.grid(row=9, column=5, columnspan=2)
         #--------------------------- final form buttons------------------------------------------------
 
         #botones de actualización
         def update_collab_attributes():
-            collab.update_information(relative_position=pos_in_department.get(), title = title_var.get(), adress=adress_var)
+            collab.update_information(
+                relative_position=pos_in_department.get(),
+                title = title_var.get(),
+                adress=adress_var.get(),
+                country=country_var.get(),
+                city=city_var.get(),
+                state=state_var.get(),
+                postal_code=pc_var.get()
+                )
+
             if status_var.get():
                 add_status()
             if manager_var.get():
@@ -407,7 +439,7 @@ class Menu(Frame):
             #collab.set_manager(Collaborator._collaborators[index_manager.get()])      
         
         updateButton = Button(frame, text="Guardar datos", command=update_collab_attributes, font=('Open Sans', 9, 'bold'))
-        updateButton.grid(row=9, column=1, columnspan=2, pady=10)
+        updateButton.grid(row=10, column=1, columnspan=2, pady=10)
         updateButton.config(bg='#696969', fg='white', relief='raised', border=3)
 
         def start_new_collaborator():
@@ -416,7 +448,7 @@ class Menu(Frame):
                 self.add_collaborator_form(frame)
 
         newcollabButton = Button(frame, text="Nuevo colaborador", command=start_new_collaborator, font=('Open Sans', 9, 'bold'))
-        newcollabButton.grid(row=9, column=3, columnspan=2, pady=10)
+        newcollabButton.grid(row=10, column=3, columnspan=2, pady=10)
 
 
 
@@ -437,10 +469,12 @@ class Menu(Frame):
 if __name__ == '__main__':
     
     #When the app initialites main department instances are created by default
-    departments_name={"Dirección general", "Talento", "Operaciones", "Administración"}
+    top_department = "Dirección general"
+    subdepartments_name={"Talento", "Operaciones", "Administración"}
 
-    for department in departments_name:
-        Department(department)        
+    general_department = Department(name=top_department)
+    for department in subdepartments_name:
+        Department(department, general_department)        
     
     #print(Department.departments)
 
