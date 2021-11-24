@@ -460,7 +460,82 @@ class Menu(Frame):
 #------------------------------- form to add a department s in a given frame----------------------------   
     def add_department_form(self, frame):
         self.clean_frame_space(frame)
-        Label(frame, text= f'La opción seleccionada es departamento').pack()
+
+        def update_departments_list():
+            return [department.name for department in Department._departments]
+
+        nameLabel = Label(frame, text= "Nombre del departamento")
+        nameLabel.grid(row=0, column=0, padx=5)
+
+        department_var= StringVar()
+
+        #departments = [department.name for department in Department._departments]
+        nameCombo = ttk.Combobox(frame, textvariable= department_var)
+        nameCombo['values'] = update_departments_list()
+        nameCombo.grid(row=0, column=1, padx=10)
+
+        dependencyLabel = Label(frame, text= "Dependencia")
+        dependencyLabel.grid(row=0, column=2, padx=10)
+
+        dependency_var= StringVar()
+
+        dependencyCombo = ttk.Combobox(frame, textvariable= dependency_var)
+        dependencyCombo['values'] = update_departments_list()
+        dependencyCombo.grid(row=0, column=3, padx=5)
+
+        def create_or_update_new_department():
+            departments = update_departments_list()
+            if not department_var.get():
+                messagebox.showwarning('Aviso', 'Introduce un departamento')
+            elif department_var.get() not in departments:
+                    upper_department = list(filter(lambda department: department.name == dependency_var.get(), Department._departments))
+                    if len(upper_department) == 1:
+                        Department(name=department_var.get(), upper_department= upper_department[0])
+                        messagebox.showinfo('Éxito', 
+                            f'Se ha creado el departamento {department_var.get()} dependiente de {upper_department[0].name}')
+                    else:
+                        Department(name=department_var.get())
+                        messagebox.showinfo('Éxito', 
+                            f'Se ha creado el departamento {department_var.get()}\n Considera introducir una dependencia válida')
+            elif department_var.get() in departments and dependency_var.get() in departments:
+                selected_department = list(filter(lambda department: department.name == department_var.get(), Department._departments))
+                upper_department = list(filter(lambda department: department.name == dependency_var.get(), Department._departments))
+                selected_department[0].set_upper_department(upper_department[0]) #update the dependency
+                messagebox.showinfo('Excelente', 
+                            f'El departamento {department_var.get()} depende ahora {upper_department[0].name}')
+            else:
+                messagebox.showwarning('Aviso', 
+                            'Introduce una dependencia válida')
+
+            nameCombo['values'] = update_departments_list()
+            dependencyCombo['values'] = update_departments_list()
+            #self.add_department_form(frame)
+
+
+            #if department_var.get() in departments: #the department already exists, so only update dependency
+            #    if dependency_var.get() in departments:
+            #        selected_department = list(filter(lambda department: department.name == department_var.get(), Department._departments))
+            #        upper_department = list(filter(lambda department: department.name == dependency_var.get(), Department._departments))
+            #        selected_department[0].set_upper_department(upper_department[0]) #update the dependency
+            #        print(f'El departemento {selected_department[0].name} depende ahora de {selected_department[0].upper_department.name}')
+            #    else:
+            #        messagebox.showinfo('Aviso', "Introduce una depencia válida")
+            #elif department_var.get and department_var.get() not in departments: #not empyty but also not in departments
+            #    if dependency_var.get() in departments:
+            #        upper_department = list(filter(lambda department: department.name == dependency_var.get(), Department._departments))
+            #        Department(name=department_var.get(), upper_department= upper_department[0])
+            #    else:
+            #        Department(name=department_var.get())
+                
+
+
+        createButton = Button(frame, text="Crear o actualizar", command=create_or_update_new_department)
+        createButton.grid(row=1, column=0, columnspan=2, pady=15)
+
+        createButton = Button(frame, text="Eliminar departamento")
+        createButton.grid(row=1, column=2, columnspan=2, pady=15)
+
+
 
         #frame.destroy()
         
@@ -470,9 +545,11 @@ if __name__ == '__main__':
     
     #When the app initialites main department instances are created by default
     top_department = "Dirección general"
+    default_department = "Otro"
     subdepartments_name={"Talento", "Operaciones", "Administración"}
 
     general_department = Department(name=top_department)
+    Department(name=default_department) #A default department without dependencies in case  there are people without a clear assigment
     for department in subdepartments_name:
         Department(department, general_department)        
     

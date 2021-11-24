@@ -128,16 +128,24 @@ class Department:
     def __init__(self, name, upper_department = None) -> None:
         self.name = name
         self.upper_department: Department = upper_department
+        self.dependencies = set() #departments depending on this one
         self._departments.append(self)
         self._department_id = self._departments.index(self) + 1
         self.department_collaborators = set()
         self._positions = {"head of department", "deputy of department", "team manager"}
         print(f"Se ha creado el nuevo departmento {name}")
         if upper_department:
+            self.set_dependencies()
             print(f'{name} depende de {self.upper_department.name}')
         print(f'Ahora existen los siguientes departamentos: {[i.name for i in self._departments]}')
 
-   
+    def set_dependencies(self):
+        self.upper_department.dependencies.add(self)
+    
+    def set_upper_department(self, upper_department):
+        self.upper_department = upper_department
+        self.set_dependencies()
+
     def add_collaborator(self, name, surname1, surname2):
         new_collaborator = Collaborator(name, surname1, surname2, self)
         self.department_collaborators.add(new_collaborator)
