@@ -129,6 +129,7 @@ class Department:
         self.name = name
         self.upper_department: Department = upper_department
         self.dependencies = set() #departments depending on this one
+        self.level_from_top: int = 0
         self._departments.append(self)
         self._department_id = self._departments.index(self) + 1
         self.department_collaborators = set()
@@ -145,6 +146,47 @@ class Department:
     def set_upper_department(self, upper_department):
         self.upper_department = upper_department
         self.set_dependencies()
+
+    def check_department_structure(self):
+        "Goes through all the departments and checks their dependencies and level o hierarchy"
+        def get_top_department(dept):
+            if not dept.upper_department:
+                dept.level_from_top = 1
+                print(f'top deparment es {dept.name}')
+                print(type(dept))
+                return dept
+            else:
+                return get_top_department(dept.upper_department)
+
+        def set_levels(top_dept):
+            for department in top_dept.dependencies:
+                department.level_from_top = top_dept.level_from_top + 1
+                print(f'El nivel del departmento {department.name} es {department.level_from_top}')
+                if len(department.dependencies) != 0:
+                    set_levels(department)
+                else:
+                    pass
+            
+            #if len(top_dept.dependencies) == 0 and end==True:
+            #    pass
+            #else:
+            #    for department in top_dept.dependencies:
+            #        cont +=1
+            #        end = True if cont == len(top_dept.dependencies) else False
+            #        department.level_from_top = top_dept.level_from_top + 1
+            #        print(f'El nivel del departmento {department.name} es {department.level_from_top}')
+            #        return set_levels(department, cont, end)
+
+        top_department = get_top_department(self)
+        set_levels(top_department)
+        for department in self._departments:
+            print(f'El nivel de {department.name} es {department.level_from_top}')
+        
+        #return get_top_department(self)
+        #test
+        
+            
+
 
     def add_collaborator(self, name, surname1, surname2):
         new_collaborator = Collaborator(name, surname1, surname2, self)

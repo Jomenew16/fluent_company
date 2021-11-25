@@ -452,12 +452,7 @@ class Menu(Frame):
 
 
 
-
-
-
-
-
-#------------------------------- form to add a department s in a given frame----------------------------   
+#------------------------------- form to add a department in a given frame----------------------------   
     def add_department_form(self, frame):
         self.clean_frame_space(frame)
 
@@ -509,33 +504,18 @@ class Menu(Frame):
 
             nameCombo['values'] = update_departments_list()
             dependencyCombo['values'] = update_departments_list()
-            #self.add_department_form(frame)
-
-
-            #if department_var.get() in departments: #the department already exists, so only update dependency
-            #    if dependency_var.get() in departments:
-            #        selected_department = list(filter(lambda department: department.name == department_var.get(), Department._departments))
-            #        upper_department = list(filter(lambda department: department.name == dependency_var.get(), Department._departments))
-            #        selected_department[0].set_upper_department(upper_department[0]) #update the dependency
-            #        print(f'El departemento {selected_department[0].name} depende ahora de {selected_department[0].upper_department.name}')
-            #    else:
-            #        messagebox.showinfo('Aviso', "Introduce una depencia válida")
-            #elif department_var.get and department_var.get() not in departments: #not empyty but also not in departments
-            #    if dependency_var.get() in departments:
-            #        upper_department = list(filter(lambda department: department.name == dependency_var.get(), Department._departments))
-            #        Department(name=department_var.get(), upper_department= upper_department[0])
-            #    else:
-            #        Department(name=department_var.get())
-                
-
-
+            
+         
         createButton = Button(frame, text="Crear o actualizar", command=create_or_update_new_department)
         createButton.grid(row=1, column=0, columnspan=2, pady=15)
 
         createButton = Button(frame, text="Eliminar departamento")
         createButton.grid(row=1, column=2, columnspan=2, pady=15)
 
-
+        #Create a canva with the view of the general structure
+          
+        structureCanvas = Canvas(frame, width=1000, height=500, bg='black')    
+        structureCanvas.grid(row=2, column=0, columnspan=4)   
 
         #frame.destroy()
         
@@ -547,11 +527,20 @@ if __name__ == '__main__':
     top_department = "Dirección general"
     default_department = "Otro"
     subdepartments_name={"Talento", "Operaciones", "Administración"}
+    talento_subdepartment = {"Nóminas", "Reclutamiento"}
 
     general_department = Department(name=top_department)
     Department(name=default_department) #A default department without dependencies in case  there are people without a clear assigment
     for department in subdepartments_name:
-        Department(department, general_department)        
+        Department(department, general_department)
+    
+    for department in talento_subdepartment:
+        Department(department, Department._departments[2])
+    
+    #"Comprobar el top department de del último department"
+    Department._departments[-1].check_department_structure()
+    #print(type(top_department))
+    #print(f'El departmento principal de {Department._departments[-1].name} es {top_department.name}')
     
     #print(Department.departments)
 
