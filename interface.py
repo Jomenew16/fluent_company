@@ -538,7 +538,7 @@ if __name__ == '__main__':
         Department(department, Department._departments[2])
     
     #"Comprobar el top department de del último department"
-    Department._departments[-1].check_department_structure()
+    Department.check_departments_structure()
     #print(type(top_department))
     #print(f'El departmento principal de {Department._departments[-1].name} es {top_department.name}')
     

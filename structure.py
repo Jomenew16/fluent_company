@@ -1,5 +1,6 @@
 import re
 from tkinter import messagebox
+import copy
 
 
 class Person:
@@ -147,10 +148,22 @@ class Department:
         self.upper_department = upper_department
         self.set_dependencies()
 
-    def check_department_structure(self):
-        "Goes through all the departments and checks their dependencies and level o hierarchy"
+    @classmethod
+    def check_departments_structure(cls):
+        """Goes through all the departments and checks their dependencies and level o hierarchy
+        Asigns a level_from_top parameter to each department, according to the following
+        aisolated departments: level_from_top = 0
+        top_departments: level_from_top = 1
+        others: subsequentes numbers, according to the distance form top
+        """
+        checked_departments = []
+        
         def get_top_department(dept):
-            if not dept.upper_department:
+            """finds the top department on each especific one"""
+            if not dept.upper_department and len(dept.dependencies) == 0:
+                dept.level_from_top = 0
+                return dept             
+            elif not dept.upper_department:
                 dept.level_from_top = 1
                 print(f'top deparment es {dept.name}')
                 print(type(dept))
@@ -159,27 +172,23 @@ class Department:
                 return get_top_department(dept.upper_department)
 
         def set_levels(top_dept):
+            """finds the dependencies of each top department"""
             for department in top_dept.dependencies:
                 department.level_from_top = top_dept.level_from_top + 1
+                checked_departments.append(department) #removed so it does not have to be checked again
                 print(f'El nivel del departmento {department.name} es {department.level_from_top}')
                 if len(department.dependencies) != 0:
                     set_levels(department)
                 else:
                     pass
-            
-            #if len(top_dept.dependencies) == 0 and end==True:
-            #    pass
-            #else:
-            #    for department in top_dept.dependencies:
-            #        cont +=1
-            #        end = True if cont == len(top_dept.dependencies) else False
-            #        department.level_from_top = top_dept.level_from_top + 1
-            #        print(f'El nivel del departmento {department.name} es {department.level_from_top}')
-            #        return set_levels(department, cont, end)
 
-        top_department = get_top_department(self)
-        set_levels(top_department)
-        for department in self._departments:
+        for department in cls._departments:
+            if department not in checked_departments:
+                top_department = get_top_department(department)
+                if top_department.level_from_top == 1:
+                    set_levels(top_department)
+        
+        for department in cls._departments:
             print(f'El nivel de {department.name} es {department.level_from_top}')
         
         #return get_top_department(self)
