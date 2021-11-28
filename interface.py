@@ -5,6 +5,7 @@ from tkinter import PhotoImage
 from typing import Annotated
 from PIL import Image, ImageTk
 from country_list import countries_for_language
+from functools import reduce
 import re
 
 from structure import Collaborator, Department
@@ -538,7 +539,13 @@ class Menu(Frame):
         #Create a canva with the view of the general structure
           
         structureCanvas = Canvas(frame, width=1000, height=500, bg='black')    
-        structureCanvas.grid(row=2, column=0, columnspan=4)   
+        structureCanvas.grid(row=2, column=0, columnspan=4)
+
+        ### Drawing the basic structure of the company
+
+        quadrants_columns = len(list(filter(lambda department: department.level_from_top == 2, Department._departments)))
+        quadrants_rows = reduce(lambda d1, d2: max(d1.level_from_top,d2.level_from_top), Department._departments)   
+        print(f'El cuadrante tiene {quadrants_columns} columnas y {quadrants_rows} filas')
 
         #frame.destroy()
         
