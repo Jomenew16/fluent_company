@@ -537,15 +537,67 @@ class Menu(Frame):
         deleteButton.grid(row=1, column=2, columnspan=2, pady=15)
 
         #Create a canva with the view of the general structure
+
           
         structureCanvas = Canvas(frame, width=1000, height=500, bg='black')    
         structureCanvas.grid(row=2, column=0, columnspan=4)
 
         ### Drawing the basic structure of the company
 
-        quadrants_columns = len(list(filter(lambda department: department.level_from_top == 2, Department._departments)))
-        quadrants_rows = reduce(lambda d1, d2: max(d1.level_from_top,d2.level_from_top), Department._departments)   
-        print(f'El cuadrante tiene {quadrants_columns} columnas y {quadrants_rows} filas')
+        def draw_department(
+            row, 
+            column,
+            nb_columns,
+            nb_rows,
+            name,
+            columnspan=False, 
+            screen_width=1000, 
+            screen_height = 500, 
+            dept_width_pct=0.6,
+            dept_height_pct=0.5,
+            colour = 'blue'):
+            """This function draws a rectanble, representing a department, given the row a colum in which is has to be drawn
+            The function receives the following parameters:
+            - row: int -> the row where the deparment will be drawns
+            - column: int -> the column where the deparment will be drawns
+            - columnspan: Boolean -> if True, the department will be drawn between two rows
+            - screen_width & screen height -> size of the canvas
+            - nb_columns: int -> number of columns
+            - nb_rows: int -> number of rows
+            - dept_width_pct -> the width of the rectangle in percentage with respecto to the quadrant size
+            - dept_height_pct -> the width of the rectangle in percentage with respecto to the quadrant size
+            - colour. Colour of the rectanble
+            """
+            #First, calculate hight and width of the quadrants
+            quadrant_base = screen_width / nb_columns
+            quadrant_height = screen_height / nb_rows
+
+            ##Second, calculate the initial point, depending on the row and colum
+            if not columnspan:
+                relative_x = quadrant_base * (1-dept_width_pct) / 2 
+                relative_y = quadrant_height * (1-dept_height_pct) / 2
+            else:
+                relative_x,= quadrant_base * (1 - dept_width_pct/2)
+                relative_y = quadrant_height * (1-dept_height_pct) / 2
+            
+            init_x, init_y = column * quadrant_base + relative_x, row * quadrant_height + relative_y
+            rect_base = quadrant_base * dept_width_pct
+            rect_height = quadrant_height * dept_height_pct
+            end_x, end_y = init_x + rect_base, init_y + rect_height
+
+            structureCanvas.create_rectangle(init_x, init_y, end_x, end_y, fill=colour)
+            structureCanvas.create_text(init_x + 5, init_y + rect_height * 0.7, text=name, fill='white', font='Arial')
+
+               
+        #number of columns and rows of the grid
+        grid_columns = len(list(filter(lambda department: department.level_from_top == 2, Department._departments)))
+        grid_rows = max([dept.level_from_top for dept in Department._departments])
+        #quadrants_rows = reduce(lambda a, b: max(a.level_from_top,b.level_from_top), list_of_levels)   
+        #print(f'El cuadrante tiene {quadrants_columns} columnas y {list_of_levels} filas')
+
+        #Draw the departments depending on general management
+        for i , department in enumerate(Department.filter_department("Dirección general").dependencies):
+            draw_department(department.level_from_top -1, i, grid_columns, grid_rows, department.name)
 
         #frame.destroy()
         
