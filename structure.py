@@ -140,13 +140,34 @@ class Department:
             self.set_dependencies()
             print(f'{name} depende de {self.upper_department.name}')
         print(f'Ahora existen los siguientes departamentos: {[i.name for i in self._departments]}')
+        #if len(self._departments) == 0:
+        #    self.create_basic_structure_of_departments()
 
-    def set_dependencies(self):
-        self.upper_department.dependencies.add(self)
-    
-    def set_upper_department(self, upper_department):
-        self.upper_department = upper_department
-        self.set_dependencies()
+    @classmethod
+    def create_basic_structure_of_departments(cls):
+        """Initiate company
+        This method creates a preliminary structure, with some of the main areas in every organization:
+            - 'Dirección general' will be the top deparment
+            - 'Otro' will serve include all the collaboratos without an specified area -including those of a removed area-
+            - 'Talento', 'Administración' and 'operaciones' ares also included           
+        """
+            #When the app initialites main department instances are created by default
+        top_department = "Dirección general"
+        default_department = "Otro"
+        subdepartments_name={"Talento", "Operaciones", "Administración"}
+        talento_subdepartment = {"Nóminas", "Reclutamiento"}
+
+        general_department = Department(name=top_department)
+        Department(name=default_department) #A default department without dependencies in case  there are people without a clear assigment
+        for department in subdepartments_name:
+            Department(department, general_department)
+
+        ####This is just for testing
+        for department in talento_subdepartment: 
+            Department(department, Department._departments[2])
+
+        #"Comprobar el top department de del último department" Just for testing
+        cls.check_departments_structure()
 
     @classmethod
     def check_departments_structure(cls):
@@ -193,10 +214,46 @@ class Department:
         
         #return get_top_department(self)
         #test
+
+    @classmethod
+    def filter_department(cls, name:str):
+        """Get a Department
+        This method returns a specific Department instance filtered by its name
         
-            
+        Receives the name of the department as parameter
+        
+        Returns the Department instance with the proper name
+        """
+        department = list(filter(lambda dept: dept.name == name, cls._departments))
+        if len(department) == 1:
+            return department[0]
+        else:
+            print("Se está intentando recuperar un departamento con nombre inapropiado o inexistente")
 
+    #def __del__(self):
+    #    #'Otro' is the default department and cannot be erased
+    #    print("¿Hemos llegado aquí?")
+    #    if self.name == 'Otro':
+    #        messagebox.showwarning('Aviso', 'No se puede eliminar el departament por defecto')
+    #    else:
+    #        #Default department inherits the collaborators from the deleted one, and its dependencies. 
+    #        default_deparment = self.filter_department("Otro")
+    #        default_deparment.department_collaborators.extend(self.department_collaborators)
+    #        default_deparment.dependencies.extend(self.dependencies)
+    #        self._departments.remove(self)
+    #    print(f'Se ha eliminado el departament {self.name}')
+    #    print(f'Ahora existen los siguientes departamentos: {[i.name for i in self._departments]}')
 
+    
+    def set_dependencies(self):
+        self.upper_department.dependencies.add(self)
+    
+    def set_upper_department(self, upper_department):
+        self.upper_department = upper_department
+        self.set_dependencies()
+
+    
+ 
     def add_collaborator(self, name, surname1, surname2):
         new_collaborator = Collaborator(name, surname1, surname2, self)
         self.department_collaborators.add(new_collaborator)
@@ -218,11 +275,11 @@ class Department:
         print(f'se ha eliminado la posición {position}')
         print(f'Ahora existen estas posiciones {self._positions}')
         
-
     def assign_position_to_collaborator(self, collab:Collaborator, position):
         if position in self.positions:
             collab.position_in_department = position
             
         else:
             print("La posición no existe en el departmento")
-    
+
+

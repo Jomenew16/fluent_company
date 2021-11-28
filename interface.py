@@ -509,8 +509,31 @@ class Menu(Frame):
         createButton = Button(frame, text="Crear o actualizar", command=create_or_update_new_department)
         createButton.grid(row=1, column=0, columnspan=2, pady=15)
 
-        createButton = Button(frame, text="Eliminar departamento")
-        createButton.grid(row=1, column=2, columnspan=2, pady=15)
+        def remove_department():
+            department = Department.filter_department(department_var.get())
+
+            if department:
+                #list(filter(lambda dept: dept.name == department_var.get(), Department._departments))           
+                print(f'Se ha seleccionado el departamento {department.name} para eliminar')
+                if department.name == 'Otro':
+                    messagebox.showwarning('Aviso', 'No se puede eliminar el departament por defecto')
+                else:
+                    #Default department inherits the collaborators from the deleted one, and its dependencies. 
+                    default_deparment = Department.filter_department("Otro")
+                    for collab in department.department_collaborators:
+                        default_deparment.department_collaborators.add(collab)
+                    for dept in department.dependencies:
+                        default_deparment.dependencies.add(dept)
+                    Department._departments.remove(department)
+                    del department
+                    nameCombo['values'] = update_departments_list()
+                    dependencyCombo['values'] = update_departments_list()
+                print(f'Ahora existen los siguientes departamentos: {[i.name for i in Department._departments]}')
+            else:
+                messagebox.showwarning('Aviso', 'Debes elegir un departamento existente')
+
+        deleteButton = Button(frame, text="Eliminar departamento", command=remove_department)
+        deleteButton.grid(row=1, column=2, columnspan=2, pady=15)
 
         #Create a canva with the view of the general structure
           
@@ -522,27 +545,7 @@ class Menu(Frame):
 
 
 if __name__ == '__main__':
-    
-    #When the app initialites main department instances are created by default
-    top_department = "Dirección general"
-    default_department = "Otro"
-    subdepartments_name={"Talento", "Operaciones", "Administración"}
-    talento_subdepartment = {"Nóminas", "Reclutamiento"}
-
-    general_department = Department(name=top_department)
-    Department(name=default_department) #A default department without dependencies in case  there are people without a clear assigment
-    for department in subdepartments_name:
-        Department(department, general_department)
-    
-    for department in talento_subdepartment:
-        Department(department, Department._departments[2])
-    
-    #"Comprobar el top department de del último department"
-    Department.check_departments_structure()
-    #print(type(top_department))
-    #print(f'El departmento principal de {Department._departments[-1].name} es {top_department.name}')
-    
-    #print(Department.departments)
+    Department.create_basic_structure_of_departments()    
 
     root = Tk()
     root.title("Diseño de empresa")
