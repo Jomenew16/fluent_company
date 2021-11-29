@@ -1,10 +1,10 @@
-<mxfile host="app.diagrams.net" modified="2021-11-15T16:13:25.978Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36" etag="cT3ol6pWUEfgXHRQ7HKc" version="15.7.3" type="github">
+<mxfile host="app.diagrams.net" modified="2021-11-29T07:40:51.544Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36" etag="0Ahh_7AYdjLe7kcO1pUT" version="15.8.6" type="github">
   <diagram name="Page-1" id="c4acf3e9-155e-7222-9cf6-157b1a14988f">
-    <mxGraphModel dx="1117" dy="623" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="782" dy="436" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="AVpuDJnW2xRjr6oXpXxj-5" value="Module: structure" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;jettyWidth=51;jettyHeight=16;" vertex="1" parent="1">
+        <mxCell id="AVpuDJnW2xRjr6oXpXxj-5" value="Module: structure" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;jettyWidth=51;jettyHeight=16;" parent="1" vertex="1">
           <mxGeometry x="250" y="40" width="590" height="470" as="geometry" />
         </mxCell>
         <mxCell id="4dG-tuDiHKRdlWogkMYx-1" value="Collaborator(Person)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#21C0A5;strokeColor=#006658;fontColor=#5C5C5C;" parent="1" vertex="1">
@@ -20,16 +20,16 @@
           <mxGeometry y="148" width="180" height="92" as="geometry" />
         </mxCell>
         <mxCell id="4dG-tuDiHKRdlWogkMYx-6" value="Department" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#21C0A5;strokeColor=#006658;fontColor=#5C5C5C;" parent="1" vertex="1">
-          <mxGeometry x="575" y="250" width="250" height="240" as="geometry" />
+          <mxGeometry x="560" y="200" width="275" height="268" as="geometry" />
         </mxCell>
         <mxCell id="4dG-tuDiHKRdlWogkMYx-7" value="+ departments: list(Department)&#xa;+ decisions: list(Decision)&#xa;+ name: str&#xa;+ department_collaborators: set(Collaborator)&#xa;+ positions: {&quot;head&quot;, &quot;deputy&quot; ...}&#xa;&#xa;&#xa;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#5C5C5C;" parent="4dG-tuDiHKRdlWogkMYx-6" vertex="1">
-          <mxGeometry y="26" width="250" height="114" as="geometry" />
+          <mxGeometry y="26" width="275" height="114" as="geometry" />
         </mxCell>
         <mxCell id="4dG-tuDiHKRdlWogkMYx-8" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#006658;fontColor=#5C5C5C;" parent="4dG-tuDiHKRdlWogkMYx-6" vertex="1">
-          <mxGeometry y="140" width="250" height="8" as="geometry" />
+          <mxGeometry y="140" width="275" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="4dG-tuDiHKRdlWogkMYx-9" value="+ add_collaborator(self, name, surname): type&#xa;+ add_position():&#xa;+ assign_position_to_collaborator(Collaborator, position)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#5C5C5C;" parent="4dG-tuDiHKRdlWogkMYx-6" vertex="1">
-          <mxGeometry y="148" width="250" height="92" as="geometry" />
+        <mxCell id="4dG-tuDiHKRdlWogkMYx-9" value="+ @classmethod: create_basic_structure_of_departments&#xa;+ @classmethod: check departments structure- Sets levels from top&#xa;+@classmethod: filter by name&#xa;+ @classmethod: filter by level&#xa;+ add_collaborator(self, name, surname): type&#xa;+ add_position():&#xa;+ assign_position_to_collaborator(Collaborator, position)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#5C5C5C;" parent="4dG-tuDiHKRdlWogkMYx-6" vertex="1">
+          <mxGeometry y="148" width="275" height="120" as="geometry" />
         </mxCell>
         <mxCell id="4dG-tuDiHKRdlWogkMYx-12" value="Person" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#21C0A5;strokeColor=#006658;fontColor=#5C5C5C;" parent="1" vertex="1">
           <mxGeometry x="330" y="69" width="160" height="144" as="geometry" />
